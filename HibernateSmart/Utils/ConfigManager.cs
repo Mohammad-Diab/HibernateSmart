@@ -13,19 +13,36 @@
 
             if (!File.Exists(configPath))
             {
-                Directory.CreateDirectory("config");
-                File.WriteAllText(configPath, $"IdleSecondsBeforeHibernate={fallback}");
+                try
+                {
+                    Directory.CreateDirectory("config");
+                    File.WriteAllText(configPath, $"IdleSecondsBeforeHibernate={fallback}");
+                }
+                catch
+                {
+                    Console.WriteLine("Failed to create config file.");
+                }
+
                 return fallback;
             }
 
             foreach (var line in File.ReadAllLines(configPath))
             {
+                if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith("#"))
+                    continue;
                 if (line.StartsWith("IdleSecondsBeforeHibernate="))
                 {
                     string valueStr = line.Split('=')[1].Trim();
                     if (int.TryParse(valueStr, out int value))
+                    {
+                        if (value == 0)
+                        {
+                            return 0;
+                        }
                         return Math.Clamp(value, min, max);
+                    }
                 }
+                break; // read only one line
             }
 
             return fallback;

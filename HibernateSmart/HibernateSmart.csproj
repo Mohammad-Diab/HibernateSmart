@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <Content Include="config\hibernateSmartConfig.conf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
