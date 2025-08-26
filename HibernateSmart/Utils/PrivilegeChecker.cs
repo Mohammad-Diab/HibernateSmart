@@ -8,12 +8,13 @@ namespace HibernateSmart.Utils
     /// </summary>
     public static class PrivilegeChecker
     {
-        [SupportedOSPlatform("windows")]
         public static bool IsRunningAsAdmin()
         {
-            using var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            using (var identity = WindowsIdentity.GetCurrent())
+            {
+                var principal = new WindowsPrincipal(identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
         }
     }
 }

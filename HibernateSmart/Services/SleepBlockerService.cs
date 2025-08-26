@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace HibernateSmart.Services
 {
@@ -7,40 +10,47 @@ namespace HibernateSmart.Services
     /// </summary>
     public static class SleepBlockerService
     {
+
         public static string GetSleepBlockersSummary()
         {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                Arguments = "-NoProfile -Command \"powercfg /requests\"",
+                Verb = "runas",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+
             try
             {
-                using Process p = new();
-                p.StartInfo.FileName = "powercfg";
-                p.StartInfo.Arguments = "/requests";
-                p.StartInfo.RedirectStandardOutput = true;
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.CreateNoWindow = true;
-                p.Start();
-
-                string output = p.StandardOutput.ReadToEnd();
-                p.WaitForExit();
-
-                var blockers = new List<string>();
-                string? currentCategory = null;
-
-                foreach (var line in output.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
+                using (Process process = Process.Start(psi))
                 {
-                    if (line.EndsWith(":"))
-                        currentCategory = line.Replace(":", "").Trim();
-                    else if (!line.Trim().Equals("None.", StringComparison.OrdinalIgnoreCase))
+                    if (process == null) return "Unable to start powercfg";
+
+                    var output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+
+                    var blockers = new List<string>();
+                    string currentCategory = null;
+
+                    foreach (var line in output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
                     {
-                        string processName = line.Trim();
-                        int lastSlash = processName.LastIndexOf('\\');
-                        if (lastSlash >= 0 && lastSlash < processName.Length - 1)
-                            processName = processName[(lastSlash + 1)..];
-
-                        blockers.Add($"{processName} ({currentCategory})");
+                        if (line.EndsWith(":"))
+                            currentCategory = line.Replace(":", "").Trim();
+                        else if (!line.Trim().Equals("None.", StringComparison.OrdinalIgnoreCase))
+                        {
+                            string processName = line.Trim();
+                            int lastSlash = processName.LastIndexOf('\\');
+                            if (lastSlash >= 0 && lastSlash < processName.Length - 1)
+                                processName = processName.Substring(lastSlash + 1);
+                            blockers.Add($"{processName} ({currentCategory})");
+                        }
                     }
-                }
 
-                return blockers.Count == 0 ? "" : string.Join(", ", blockers);
+                    return blockers.Count == 0 ? "" : string.Join(", ", blockers);
+                }
             }
             catch (Exception ex)
             {

@@ -1,4 +1,7 @@
-﻿namespace HibernateSmart.Utils
+﻿using System;
+using System.IO;
+
+namespace HibernateSmart.Utils
 {
     /// <summary>
     /// Manages reading and writing configuration values.
@@ -39,7 +42,9 @@
                         {
                             return 0;
                         }
-                        return Math.Clamp(value, min, max);
+                        if (value < min) value = min;
+                        if (value > max) value = max;
+                        return value;
                     }
                 }
                 break; // read only one line
