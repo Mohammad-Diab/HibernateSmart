@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using HibernateSmart.Utils;
 
 namespace HibernateSmart.Services
 {
@@ -20,10 +21,23 @@ namespace HibernateSmart.Services
 
         public static TimeSpan GetIdleTime()
         {
-            LASTINPUTINFO lii = new LASTINPUTINFO { cbSize = (uint)Marshal.SizeOf(typeof(LASTINPUTINFO)) };
-            GetLastInputInfo(ref lii);
-            uint idleTicks = (uint)Environment.TickCount - lii.dwTime;
-            return TimeSpan.FromMilliseconds(idleTicks);
+            try
+            {
+
+                LASTINPUTINFO lii = new LASTINPUTINFO { cbSize = (uint)Marshal.SizeOf(typeof(LASTINPUTINFO)) };
+                if (!GetLastInputInfo(ref lii))
+                {
+                    Logger.Log("Failed to get last input info.");
+                    return TimeSpan.Zero;
+                }
+                uint idleTicks = (uint)Environment.TickCount - lii.dwTime;
+                return TimeSpan.FromMilliseconds(idleTicks);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Failed to get last input info: {ex.Message}");
+                return TimeSpan.Zero;
+            }
         }
     }
 }

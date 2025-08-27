@@ -1,5 +1,7 @@
-﻿using System.Runtime.Versioning;
+﻿using System;
+using System.Runtime.Versioning;
 using System.Security.Principal;
+using HibernateSmart.Utils;
 
 namespace HibernateSmart.Utils
 {
@@ -10,10 +12,20 @@ namespace HibernateSmart.Utils
     {
         public static bool IsRunningAsAdmin()
         {
-            using (var identity = WindowsIdentity.GetCurrent())
+            try
             {
-                var principal = new WindowsPrincipal(identity);
-                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+                using (var identity = WindowsIdentity.GetCurrent())
+                {
+                    var principal = new WindowsPrincipal(identity);
+                    bool isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+                    Logger.Log($"IsRunningAsAdmin check: {isAdmin}");
+                    return isAdmin;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Error checking admin privilege: {ex.Message}");
+                return false;
             }
         }
     }

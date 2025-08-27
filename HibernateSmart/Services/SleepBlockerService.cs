@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
+using HibernateSmart.Utils;
 
 namespace HibernateSmart.Services
 {
@@ -10,7 +10,6 @@ namespace HibernateSmart.Services
     /// </summary>
     public static class SleepBlockerService
     {
-
         public static string GetSleepBlockersSummary()
         {
             var psi = new ProcessStartInfo
@@ -27,7 +26,11 @@ namespace HibernateSmart.Services
             {
                 using (Process process = Process.Start(psi))
                 {
-                    if (process == null) return "Unable to start powercfg";
+                    if (process == null)
+                    {
+                        Logger.Log("Unable to start powercfg process.");
+                        return "Unable to start powercfg";
+                    }
 
                     var output = process.StandardOutput.ReadToEnd();
                     process.WaitForExit();
@@ -54,6 +57,7 @@ namespace HibernateSmart.Services
             }
             catch (Exception ex)
             {
+                Logger.Log($"Error checking sleep blockers: {ex.Message}");
                 return $"Error checking sleep blockers: {ex.Message}";
             }
         }

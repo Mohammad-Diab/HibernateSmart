@@ -9,15 +9,14 @@ namespace HibernateSmart
     {
         static void Main(string[] args)
         {
+            Logger.Log("HibernateSmart started.");
             const int minIdleThreshold = 60;     // Minimum allowed idle time in seconds
             const int maxIdleThreshold = 86400;  // Maximum allowed idle time in seconds
 
             // Ensure the program is running with Administrator privileges
             if (!PrivilegeChecker.IsRunningAsAdmin())
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Please run this program as Administrator to check sleep blockers.");
-                Console.ResetColor();
+                Logger.Log("Program not running as Administrator. Exiting...", writeToConsole: true);
                 return;
             }
 
@@ -26,18 +25,28 @@ namespace HibernateSmart
 
             if (idleThreshold == 0)
             {
-                Console.WriteLine("A value of 0 was entered. The program will terminate.");
+                Logger.Log("Idle threshold set to 0. Program will terminate.", writeToConsole: true);
                 return;
             }
 
-            bool hibernateTriggered = false;
+            bool hibernateTriggered = true;
 
             while (true)
             {
+                Console.Clear();
+                if (!SessionStateChecker.IsCurrentSessionActive())
+                {
+                    Logger.Log("Current session is not active. Skipping this check.", writeToConsole: true);
+                    Thread.Sleep(5000); // Check every 5 seconds
+                    continue;
+                }
+
                 var idle = IdleTimeService.GetIdleTime();
                 var blockers = SleepBlockerService.GetSleepBlockersSummary();
 
-                Console.Clear();
+                Logger.Log($"Idle Time: {idle.TotalSeconds:F0} seconds, Blockers: {(string.IsNullOrEmpty(blockers) ? "None" : blockers)}");
+
+                
                 Console.WriteLine("Smart Hibernate is monitoring your system.");
                 Console.WriteLine($"Idle threshold: {idleThreshold} seconds");
                 Console.WriteLine($"Idle Time: {idle.TotalSeconds:F0} seconds");
@@ -48,17 +57,23 @@ namespace HibernateSmart
                     Console.WriteLine($"Sleep Blockers: {blockers}");
 
                 // Trigger hibernation if idle time exceeds threshold and no blockers exist
-                if (!hibernateTriggered && idle.TotalSeconds > idleThreshold && string.IsNullOrEmpty(blockers))
+                if (hibernateTriggered)
                 {
-                    HibernateService.HibernateSystem();
-                    hibernateTriggered = true;
+                    if (idle.TotalSeconds < idleThreshold)
+                    {
+                        hibernateTriggered = false;
+                        Logger.Log("User activity detected — hibernate timer reset.", writeToConsole: true);
+                    }
                 }
-                else if (hibernateTriggered && idle.TotalSeconds < idleThreshold)
+                else
                 {
-                    Console.WriteLine("User activity detected — hibernate timer reset.");
-                    hibernateTriggered = false;
+                    if (idle.TotalSeconds > idleThreshold && string.IsNullOrEmpty(blockers))
+                    {
+                        Logger.Log("Idle threshold exceeded and no blockers. Triggering hibernation.", writeToConsole: true);
+                        HibernateService.HibernateSystem();
+                        hibernateTriggered = true;
+                    }
                 }
-
                 Thread.Sleep(5000); // Check every 5 seconds
             }
 

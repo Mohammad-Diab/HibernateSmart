@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using HibernateSmart.Utils;
 
 namespace HibernateSmart.Services
 {
@@ -12,12 +13,12 @@ namespace HibernateSmart.Services
         {
             try
             {
-                Console.WriteLine("Initiating system hibernation...");
+                Logger.Log("Initiating system hibernation...", writeToConsole: true);
                 Process.Start("shutdown", "/h");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to hibernate: {ex.Message}");
+                Logger.Log($"Failed to hibernate: {ex.Message}", writeToConsole: true);
             }
         }
     }
