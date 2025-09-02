@@ -1,0 +1,32 @@
+﻿<Window x:Class="HibernateSmart.UI.Windows.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HibernateSmart.UI.Windows"
+        mc:Ignorable="d"
+        Title="Settings" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
+
+    <DockPanel Margin="10">
+        <DockPanel.Resources>
+            <Style TargetType="{x:Type Grid}">
+                <Setter Property="Margin" Value="0,0,0,10"/>
+            </Style>
+        </DockPanel.Resources>
+        <Grid DockPanel.Dock="Top">
+            <CheckBox x:Name="EnableLoggingCheck" Content="Enable logging" />
+        </Grid>
+
+        <Grid x:Name="IdleThresholdGrid" MinWidth="240" DockPanel.Dock="Top">
+            <TextBlock HorizontalAlignment="Left" Text="Idle threshold (seconds)" VerticalAlignment="Center"/>
+            <TextBox HorizontalAlignment="Right" x:Name="IdleThresholdBox" Width="80"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Bottom">
+            <Button Content="Save" Width="90" Margin="0,0,8,0" Click="Save_Click"/>
+            <Button Content="Cancel" Width="90" Click="Cancel_Click"/>
+        </StackPanel>
+        
+        <Grid DockPanel.Dock="Bottom" Height="Auto"></Grid>
+    </DockPanel>
+</Window>
+

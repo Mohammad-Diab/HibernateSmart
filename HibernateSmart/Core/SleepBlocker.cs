@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
+using HibernateSmart.Utils;
 
 namespace HibernateSmart.Services
 {
     /// <summary>
     /// Checks for processes or drivers that are preventing the system from sleeping.
     /// </summary>
-    public static class SleepBlockerService
+    public static class SleepBlocker
     {
-
         public static string GetSleepBlockersSummary()
         {
             var psi = new ProcessStartInfo
@@ -27,7 +26,11 @@ namespace HibernateSmart.Services
             {
                 using (Process process = Process.Start(psi))
                 {
-                    if (process == null) return "Unable to start powercfg";
+                    if (process == null)
+                    {
+                        Logger.Error("Unable to start powercfg process.", mode: AppMode.Server);
+                        return "Unable to start powercfg";
+                    }
 
                     var output = process.StandardOutput.ReadToEnd();
                     process.WaitForExit();
@@ -54,6 +57,7 @@ namespace HibernateSmart.Services
             }
             catch (Exception ex)
             {
+                Logger.Error($"Error checking sleep blockers: {ex.Message}", mode: AppMode.Server);
                 return $"Error checking sleep blockers: {ex.Message}";
             }
         }
