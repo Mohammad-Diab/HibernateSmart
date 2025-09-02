@@ -22,17 +22,32 @@ namespace HibernateSmart
         private TimeProvider _time;
         private Guid _myGuid;
 
-
         private const string MapName = @"Global\HibernateSmart_MMF_V1";
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             if (!PermissionsChecker.IsAdministrator())
             {
-                MessageBox.Show("Application must run as Administrator.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Application must run as Administrator.", "Administrator Privileges Required", MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown();
                 return;
             }
+
+            bool isOS64 = Environment.Is64BitOperatingSystem;
+            bool isProcess64 = Environment.Is64BitProcess;
+
+            if (isOS64 && !isProcess64)
+            {
+                MessageBox.Show(
+                    "You are running the 32-bit version on a 64-bit system.\n" +
+                    "Please install and run the 64-bit version for full functionality.",
+                    "Architecture Mismatch",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+                Shutdown();
+            }
+
             var username = UserSessions.GetUsername();
             _ = new Mutex(true, $@"Global\{_mutexName}_{username}", out bool createdNew);
 
