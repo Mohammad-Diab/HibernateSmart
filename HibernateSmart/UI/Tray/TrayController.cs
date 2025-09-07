@@ -1,6 +1,8 @@
 ﻿using HibernateSmart.Core;
 using HibernateSmart.Infrastructure.SharedMemory;
 using HibernateSmart.UI.Windows;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using System;
 using System.Windows.Forms;
 
 namespace HibernateSmart.UI.Tray
@@ -48,24 +50,45 @@ namespace HibernateSmart.UI.Tray
             ram.WriteBoolean(SharedMemoryLayout.Off_SettingsFlags, SharedMemoryLayout.EndAll, true);
         }
 
+        [STAThread]
         public static void ExitApplication(SharedMemoryAccessor ram)
         {
-            var result = MessageBox.Show(
-                "Closing only your instance may trigger hibernation even if you're still active. \n\nWould you like to end all instances instead? \nYes, End all instances (recommended) \nNo, End only your instance",
-                "Close SmartHibernate",
-                MessageBoxButtons.YesNoCancel,
-                MessageBoxIcon.Warning);
-            switch (result)
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                case DialogResult.Yes:
+                var td = new TaskDialog
+                {
+                    Caption = "Close SmartHibernate",
+                    InstructionText = "If you close only your instance, hibernation may be triggered even while you're still active.",
+                    Text = "Would you like to end all instances instead?",
+                    Icon = TaskDialogStandardIcon.Warning,
+                    StandardButtons = TaskDialogStandardButtons.None
+                };
+
+                var yesButton = new TaskDialogCommandLink() { Text = "Yes, End all instances (recommended)", Default = true, };
+                yesButton.Click += (s, e) =>
+                {
+                    td.Close();
                     EndAll(ram);
-                    break;
-                case DialogResult.No:
+                };
+
+                var noButton = new TaskDialogCommandLink() { Text = "No, End only your instance" };
+                noButton.Click += (s, e) =>
+                {
+                    td.Close();
                     System.Windows.Application.Current.Shutdown();
-                    break;
-                default:
-                    break;
-            }
+                };
+
+                var cancelButton = new TaskDialogCommandLink() { Text = "Cancel" };
+                cancelButton.Click += (s, e) =>
+                {
+                    td.Close();
+                };
+
+                td.Controls.Add(yesButton);
+                td.Controls.Add(noButton);
+                td.Controls.Add(cancelButton);
+                td.Show();
+            });
         }
     }
 }

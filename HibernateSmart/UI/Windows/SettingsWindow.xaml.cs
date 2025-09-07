@@ -1,5 +1,6 @@
 ﻿using HibernateSmart.Core;
 using HibernateSmart.Infrastructure.SharedMemory;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows;
 
 namespace HibernateSmart.UI.Windows
@@ -34,23 +35,26 @@ namespace HibernateSmart.UI.Windows
             int threshold;
             if (!int.TryParse(IdleThresholdBox.Text.Trim(), out threshold))
             {
-                MessageBox.Show(
-                    "Idle threshold must be a valid integer value.",
-                    "Validation",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning
-                );
+                new TaskDialog
+                {
+                    Caption = "Validation",
+                    InstructionText = "Idle threshold must be a valid integer value.", 
+                    Icon = TaskDialogStandardIcon.Warning,
+                    StandardButtons = TaskDialogStandardButtons.Ok
+                }.Show();
+
                 return;
             }
 
             if (threshold < 60 || threshold > 86400)
             {
-                MessageBox.Show(
-                    "Idle threshold must be between 60 seconds (1 minute) and 86,400 seconds (24 hours).",
-                    "Validation",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning
-                );
+                new TaskDialog
+                {
+                    Caption = "Validation",
+                    InstructionText = "Idle threshold must be between 60 seconds (1 minute) and 86,400 seconds (24 hours).",
+                    Icon = TaskDialogStandardIcon.Warning,
+                    StandardButtons = TaskDialogStandardButtons.Ok,
+                }.Show();
                 return;
             }
 

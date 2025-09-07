@@ -16,7 +16,6 @@ Pre‑built releases are available on the [Releases page](../../releases) — no
 > - **x86** is for older 32‑bit systems.  
 > - **ARM64** is for devices like Surface Pro X or Windows on ARM laptops.
 
-
 ---
 
 ## Overview
@@ -46,7 +45,7 @@ If the system remains idle for the specified duration, HibernateSmart will initi
 ## Configuration
 - Open the application’s Settings from the system tray icon.
 - Two options are available:
-    1. 	**Enable logging**: toggle whether to write logs to a file. This does not affect in‑program logging.
+    1. 	**Enable logging**: toggle whether to write logs to a file. **This does not affect in‑program logging**.
     2. 	**Idle threshold (seconds)**: adjust the number of seconds the system can remain idle before hibernation is triggered.
 - After making changes, click Save to apply them.
 
@@ -56,45 +55,50 @@ If the system remains idle for the specified duration, HibernateSmart will initi
 If you want HibernateSmart to start automatically every time you log in:
 
 **Option 1 – Run the PowerShell script**
-- Right‑click `add_task.ps1` and select **Run with PowerShell**.
-- Follow the on‑screen prompts to confirm the executable path and create the scheduled task.
+- Right‑click `auto-startup.ps1` and select **Run with PowerShell**.
+- Follow the on‑screen prompts to confirm the executable path.
+- The script will add a registry entry under `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run` that launches HibernateSmart at logon.
 - **Important:** Run PowerShell as Administrator to avoid permission errors.
 
 **Option 2 – Use the batch file**
-- Right‑click `add_task.bat` and select **Run as administrator**.
+- Right‑click `auto-startup.bat` and select **Run as administrator**.
 - This will execute the PowerShell script.
 
-The scheduled task named `HibernateSmartTask` will launch HibernateSmart at every user logon.
+The registry entry named `HibernateSmart` will ensure HibernateSmart starts at every user logon and will trigger a UAC prompt before launch.
 
 ---
 
 ## Requirements
-- **Windows 10 or later** (Hibernate feature must be supported by the system).
-- **PowerShell 5.1 or later** (pre‑installed on Windows 10 and newer).
-- **.NET Framework 4.6** pre‑installed on Windows 10 and later;.
-- **Administrator privileges** are required to create the startup task or run the application.
+- **Windows 10 or later** – Hibernate feature must be supported by the system.
+- **PowerShell 5.1 or later** pre‑installed on Windows 10 and later.
+- **.NET Framework 4.6.2** pre‑installed on Windows 10 version 1607 and later; For earlier versions, it may need to be installed manually.
+- **Administrator privileges** are required to add HibernateSmart to startup or to run the application.
 
 ---
 
-## Remove Startup Task
-If you no longer want HibernateSmart to start automatically at user logon, you can remove the scheduled task in one of the following ways:
+## Remove Startup Entry
+If you no longer want HibernateSmart to start automatically at user logon, you can remove the registry entry in one of the following ways:
 
-**Option 1 – Remove via Task Scheduler**
-1. Open **Task Scheduler**.
-2. Navigate to **Task Scheduler Library**.
-3. Locate the task named `HibernateSmartTask`.
+**Option 1 – Remove via Registry Editor**
+1. Press Windows + R, type `regedit`, and press Enter.
+2. Navigate to:
+```
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+```
+3. Locate the value named `HibernateSmart`
 4. Right‑click it and select **Delete**.
+5. Close Registry Editor.
 
 **Option 2 – Run the PowerShell removal script**
-1. Right‑click `remove_task.ps1` and select **Run with PowerShell**.
+1. Right‑click `remove-startup.ps1` and select **Run with PowerShell**.
 2. Follow the on‑screen prompts to confirm removal.
 3. **Important:** Run PowerShell as Administrator to avoid permission errors.
 
 **Option 3 – Use the batch file**
-1. Right‑click `remove_task.bat` and select **Run as administrator**.
+1. Right‑click `remove-startup.bat` and select **Run as administrator**.
 2. This will execute the removal script automatically without needing to open PowerShell manually.
 
-> **Note:** Removing the startup task does not uninstall HibernateSmart; it only prevents it from launching automatically at logon.
+> **Note:** Removing the startup entry does not uninstall HibernateSmart; it only prevents it from launching automatically at logon.
 
 ---
 
