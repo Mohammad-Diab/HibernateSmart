@@ -7,9 +7,9 @@ SmartHibernate is a lightweight Windows utility that automatically hibernates yo
 ## Download
 Pre‑built releases are available on the [Releases page](../../releases) — no need to build from source.
 
-- [Download for Windows x86 (32‑bit)](../../releases/latest/download/HibernateSmart_x86.zip)
-- [Download for Windows x64 (64‑bit)](../../releases/latest/download/HibernateSmart_x64.zip)
-- [Download for Windows ARM64](../../releases/latest/download/HibernateSmart_ARM64.zip)
+- [Download for Windows x64](../../releases/latest/download/HibernateSmart-v1.0.0-win-x64.7z)
+- [Download for Windows ARM64](../../releases/latest/download/HibernateSmart-v1.0.0-win-arm64.7z)
+- [Download for Windows x86](../../releases/latest/download/HibernateSmart-v1.0.0-win-x86.7z)
 
 > **Note:** Please select the correct build that matches your system architecture.  
 > - Most modern PCs use **x64**.  
